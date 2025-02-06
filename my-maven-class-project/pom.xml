@@ -52,11 +52,21 @@
                 <version>3.2.0</version>
             </plugin>
 
-            <!-- Surefire Plugin for Running JUnit 5 Tests -->
+            <!-- Surefire Plugin for Running JUnit 5 Tests and Generating Reports -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.2</version>
+                <configuration>
+                    <reportsDirectory>${project.build.directory}/site</reportsDirectory>
+                </configuration>
+            </plugin>
+
+            <!-- Maven Site Plugin to Generate Reports -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.9.1</version>
             </plugin>
 
             <!-- JaCoCo Plugin for Code Coverage -->
