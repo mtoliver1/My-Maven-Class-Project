@@ -74,6 +74,11 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <configuration>
+                            <reports>
+                                <report>xml</report>  <!-- Force XML Report -->
+                            </reports>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
