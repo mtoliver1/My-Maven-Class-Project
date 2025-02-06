@@ -7,38 +7,30 @@
     <groupId>com.maven.project</groupId>
     <artifactId>my-maven-class-project</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
-
-    <name>My Maven Class Project</name>
-    <description>A Maven project with JUnit tests, JaCoCo coverage, and SonarQube analysis</description>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <junit.jupiter.version>5.9.1</junit.jupiter.version>
         <jacoco.version>0.8.8</jacoco.version>
-        <sonar.projectKey>my-maven-class-project</sonar.projectKey>
     </properties>
 
     <dependencies>
-        <!-- JUnit 5 for Testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit.jupiter.version}</version>
+            <version>5.9.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit.jupiter.version}</version>
+            <version>5.9.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <!-- Compiler Plugin for Java 17 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -49,14 +41,12 @@
                 </configuration>
             </plugin>
 
-            <!-- Surefire Plugin for Running JUnit 5 Tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.2</version>
             </plugin>
 
-            <!-- JaCoCo Plugin for Code Coverage -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -74,16 +64,10 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
-                        <configuration>
-                            <reports>
-                                <report>xml</report>  <!-- Force XML Report -->
-                            </reports>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
 
-            <!-- SonarQube Plugin for Static Code Analysis -->
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
