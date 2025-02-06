@@ -45,7 +45,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Surefire Plugin to Run JUnit 5 Tests -->
+            <!-- Surefire Plugin for Running JUnit 5 Tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -53,8 +53,23 @@
                 <configuration>
                     <useFile>true</useFile>
                     <printSummary>true</printSummary>
-                    <reportFormat>xml</reportFormat> <!-- Ensures XML reports for Jenkins -->
+                    <reportFormat>xml</reportFormat>
                 </configuration>
+            </plugin>
+
+            <!-- Surefire Report Plugin for Generating HTML Reports -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>3.0.0-M7</version>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report-only</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- JaCoCo Plugin for Code Coverage -->
