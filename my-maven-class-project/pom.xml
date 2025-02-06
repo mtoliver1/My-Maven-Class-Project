@@ -34,7 +34,7 @@
 
     <build>
         <plugins>
-            <!-- Compiler Plugin for Java 17 -->
+            <!-- Compiler Plugin for Java -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -43,6 +43,21 @@
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
                 </configuration>
+            </plugin>
+
+            <!-- Maven JAR Plugin to Generate a Deployable JAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- Surefire Plugin for Running JUnit 5 Tests -->
@@ -57,7 +72,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Surefire Report Plugin for Generating HTML Reports -->
+            <!-- Surefire Report Plugin for HTML Reports -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
@@ -90,11 +105,6 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
-                        <configuration>
-                            <reports>
-                                <report>xml</report> <!-- Ensures XML report for SonarQube -->
-                            </reports>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
