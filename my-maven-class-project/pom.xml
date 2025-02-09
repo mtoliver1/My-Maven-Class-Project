@@ -1,92 +1,95 @@
-pipeline {
-    agent any
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    tools {
-        maven 'Maven_3.9.9'  // Ensure this matches Jenkins Global Tool Config
-        jdk 'Java_17'        // Ensure Java_17 is installed in Jenkins
-    }
+    <modelVersion>4.0.0</modelVersion>
 
-    stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/mtoliver1/My-Maven-Class-Project.git'
-            }
-        }
+    <groupId>com.maven.project</groupId>
+    <artifactId>my-maven-class-project</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
-        stage('Build') {
-            steps {
-                dir('my-maven-class-project') {  // Ensure correct directory
-                    bat 'mvn clean package -DskipTests'
-                }
-            }
-        }
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <jacoco.version>0.8.8</jacoco.version>
+        <sonar.projectKey>${project.groupId}:${project.artifactId}</sonar.projectKey>
+    </properties>
 
-        stage('Test') {
-            steps {
-                dir('my-maven-class-project') {
-                    bat 'mvn test'
-                }
-            }
-            post {
-                always {
-                    junit 'my-maven-class-project/target/surefire-reports/*.xml'
-                }
-            }
-        }
+    <dependencies>
+        <!-- JUnit 5 for Testing -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.9.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.9.1</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
-        stage('Code Analysis with SonarQube') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    dir('my-maven-class-project') {
-                        bat """
-                        mvn sonar:sonar \
-                        -Dsonar.projectKey=my-maven-class-project \
-                        -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-                        """
-                    }
-                }
-            }
-        }
+    <build>
+        <plugins>
+            <!-- Compiler Plugin for Java 17 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
 
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    script {
-                        def qg = waitForQualityGate()
-                        if (qg.status != 'OK') {
-                            echo "SonarQube Quality Gate failed: ${qg.status}"
-                            return // Continue pipeline execution even if Quality Gate fails
-                        }
-                    }
-                }
-            }
-        }
+            <!-- Surefire Plugin for Running JUnit 5 Tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
+                <configuration>
+                    <useFile>true</useFile>
+                    <printSummary>true</printSummary>
+                    <reportFormat>xml</reportFormat>
+                </configuration>
+            </plugin>
 
-        stage('Code Coverage with JaCoCo') {
-            steps {
-                dir('my-maven-class-project') {
-                    jacoco(execPattern: '**/target/jacoco.exec', 
-                           classPattern: '**/target/classes', 
-                           sourcePattern: '**/src/main/java')
-                }
-            }
-        }
+            <!-- JaCoCo Plugin for Code Coverage -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <reports>
+                                <report>xml</report>
+                            </reports>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
-        stage('Archive Artifact') {
-            steps {
-                dir('my-maven-class-project') {
-                    archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-                }
-            }
-        }
-    }
-
-    post {
-        success {
-            echo '✅ Build and analysis completed successfully!'
-        }
-        failure {
-            echo '❌ Build or analysis failed. Check logs for details.'
-        }
-    }
-}
+            <!-- SonarQube Plugin for Static Code Analysis -->
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.9.1.2184</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
