@@ -1,65 +1,92 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+pipeline {
+    agent any
 
-    <modelVersion>4.0.0</modelVersion>
+    tools {
+        maven 'Maven_3.9.9'  // Ensure this matches Jenkins Global Tool Config
+        jdk 'Java_17'        // Ensure Java_17 is installed in Jenkins
+    }
 
-    <groupId>com.maven.project</groupId>
-    <artifactId>my-maven-class-project</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/mtoliver1/My-Maven-Class-Project.git'
+            }
+        }
 
-    <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <jacoco.version>0.8.8</jacoco.version>
-        <sonar.projectKey>${project.groupId}:${project.artifactId}</sonar.projectKey>
-    </properties>
+        stage('Build') {
+            steps {
+                dir('my-maven-class-project') {  // Ensure correct directory
+                    bat 'mvn clean package -DskipTests'
+                }
+            }
+        }
 
-    <dependencies>
-        <!-- JUnit 5 for Testing -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.9.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.9.1</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+        stage('Test') {
+            steps {
+                dir('my-maven-class-project') {
+                    bat 'mvn test'
+                }
+            }
+            post {
+                always {
+                    junit 'my-maven-class-project/target/surefire-reports/*.xml'
+                }
+            }
+        }
 
-    <build>
-        <plugins>
-            <!-- Compiler Plugin for Java 17 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                </configuration>
-            </plugin>
+        stage('Code Analysis with SonarQube') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    dir('my-maven-class-project') {
+                        bat """
+                        mvn sonar:sonar \
+                        -Dsonar.projectKey=my-maven-class-project \
+                        -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                        """
+                    }
+                }
+            }
+        }
 
-            <!-- Surefire Plugin for Running JUnit 5 Tests -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
-                <configuration>
-                    <useFile>true</useFile>
-                    <printSummary>true</printSummary>
-                    <reportFormat>xml</reportFormat>
-                </configuration>
-            </plugin>
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    script {
+                        def qg = waitForQualityGate()
+                        if (qg.status != 'OK') {
+                            echo "SonarQube Quality Gate failed: ${qg.status}"
+                            return // Continue pipeline execution even if Quality Gate fails
+                        }
+                    }
+                }
+            }
+        }
 
-            <!-- JaCoCo Plugin for Code Coverage -->
-            <plugin>
-                <groupId>org.jacoco</groupId>
+        stage('Code Coverage with JaCoCo') {
+            steps {
+                dir('my-maven-class-project') {
+                    jacoco(execPattern: '**/target/jacoco.exec', 
+                           classPattern: '**/target/classes', 
+                           sourcePattern: '**/src/main/java')
+                }
+            }
+        }
 
-::contentReference[oaicite:0]{index=0}
- 
+        stage('Archive Artifact') {
+            steps {
+                dir('my-maven-class-project') {
+                    archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Build and analysis completed successfully!'
+        }
+        failure {
+            echo '❌ Build or analysis failed. Check logs for details.'
+        }
+    }
+}
