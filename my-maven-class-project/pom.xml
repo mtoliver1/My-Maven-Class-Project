@@ -60,11 +60,14 @@
                         <goals>
                             <goal>report-only</goal>
                         </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/surefire-reports</outputDirectory>
-                        </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>3.1.1</version>
             </plugin>
 
             <plugin>
