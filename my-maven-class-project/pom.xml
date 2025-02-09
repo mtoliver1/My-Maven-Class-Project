@@ -15,8 +15,8 @@
         <maven.compiler.target>17</maven.compiler.target>
         <jacoco.version>0.8.8</jacoco.version>
         <sonar.projectKey>${project.groupId}:${project.artifactId}</sonar.projectKey>
-             <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-             <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
     <dependencies>
@@ -67,12 +67,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jxr-plugin</artifactId>
-                <version>3.1.1</version>
             </plugin>
 
             <plugin>
